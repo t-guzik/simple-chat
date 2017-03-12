@@ -1,12 +1,8 @@
 package tcp;
 
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+import javafx.scene.control.*;
+import java.io.*;
+import java.net.*;
 
 /**
  * Created by Tomasz Guzik on 2017-03-10.
@@ -19,12 +15,13 @@ import java.net.Socket;
  */
 public class ClientTCP{
     /** Socket data */
-    protected final String serverHost = "192.168.0.14";
-    protected boolean loggedIn = false;
-    protected static final int PORTNUM = 9999;
-    protected Socket socket;
-    protected BufferedReader inputStream;
-    protected PrintWriter outputStream;
+    private final String serverHost = "localhost";
+    private final int PORTNUM = 9999;
+    private Socket socket;
+    private BufferedReader inputStream;
+    private PrintWriter outputStream;
+
+    private boolean isLoggedIn = false;
 
     /** GUI */
     private String login;
@@ -38,14 +35,14 @@ public class ClientTCP{
     }
 
     public void login() {
-        if (loggedIn)
+        if (isLoggedIn)
             return;
         try {
             socket = new Socket(serverHost, PORTNUM);
             inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             outputStream = new PrintWriter(socket.getOutputStream(), true);
             outputStream.println("L" + login);
-            loggedIn = true;
+            isLoggedIn = true;
         } catch(IOException e) {
             log("Can't get socket to " + serverHost + "/" + PORTNUM + ": " + e);
             return;
@@ -54,9 +51,9 @@ public class ClientTCP{
         new Thread(new Runnable() {
             public void run() {
                 String msg;
-                char option; // M = msg, N = clients number
+                char option; // M = msg, S = clients list size
                 try {
-                    while (loggedIn && ((msg = inputStream.readLine()) != null)){
+                    while (isLoggedIn && ((msg = inputStream.readLine()) != null)){
                         option = msg.charAt(0);
                         msg = msg.substring(1);
                         switch(option){
@@ -78,10 +75,10 @@ public class ClientTCP{
     }
 
     public void logout() {
-        if (!loggedIn)
+        if (!isLoggedIn)
             return;
 
-        loggedIn = false;
+        isLoggedIn = false;
         try {
             if (socket != null) {
                 outputStream.println("Q" + login);
@@ -92,13 +89,13 @@ public class ClientTCP{
         }
     }
 
-    public void log(String message) {
-        System.out.println(message);
-    }
-
     public void send(String msg) {
-        if(loggedIn){
+        if(isLoggedIn){
             outputStream.println("M" + msg);
         }
+    }
+
+    private void log(String message) {
+        System.out.println(message);
     }
 }

@@ -3,38 +3,43 @@ package app;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.control.*;
+import javafx.scene.input.*;
 import javafx.stage.Stage;
 import tcp.ClientTCP;
+import udp.ChatServerUDP;
+import udp.ClientUDP;
+
+import java.io.IOException;
 
 public class Controller {
     @FXML
-    private TextField usersTF;
-    @FXML
     private Button sendBtn;
     @FXML
-    private TextField msgTF;
-    @FXML
-    private TextArea chatTA;
+    private Button mediaBtn;
     @FXML
     private Button saveBtn;
     @FXML
-    private TextField loginTF;
+    private Button logoutBtn;
+    @FXML
+    private Button loginBtn;
     @FXML
     private Label loginLbl;
     @FXML
     private Label errorsLbl;
     @FXML
-    private Button logoutBtn;
+    private TextArea chatTA;
     @FXML
-    private Button loginBtn;
+    private TextField msgTF;
+    @FXML
+    private TextField usersTF;
+    @FXML
+    private TextField loginTF;
 
-    protected ClientTCP client;
+    private ClientTCP clientTCP;
+    private ClientUDP clientUDP;
+    private ChatServerUDP chatServerUDP;
+
     private String login;
 
     public void saveLogin(ActionEvent actionEvent) {
@@ -54,36 +59,46 @@ public class Controller {
         }
     }
 
-    public void logout(ActionEvent actionEvent) {
-        client.logout();
-        Stage stage = (Stage) logoutBtn.getScene().getWindow();
-        stage.close();
-    }
-
     public void login(ActionEvent actionEvent) {
         loginBtn.setDisable(true);
         msgTF.setDisable(false);
         msgTF.requestFocus();
         sendBtn.setDisable(false);
+        mediaBtn.setDisable(false);
         logoutBtn.setDisable(false);
         usersTF.setVisible(true);
         usersTF.setAlignment(Pos.CENTER);
 
-        client = new ClientTCP(chatTA, usersTF, login);
-        client.login();
+        clientTCP = new ClientTCP(chatTA, usersTF, login);
+        clientTCP.login();
+
+        chatServerUDP = new ChatServerUDP();
+        clientUDP = new ClientUDP();
     }
 
     public void send(ActionEvent actionEvent) {
         if(!msgTF.getText().equals("")){
-            client.send(msgTF.getText());
+            clientTCP.send(msgTF.getText());
             chatTA.appendText(login + ": " + msgTF.getText() + "\n");
             msgTF.setText("");
         }
     }
 
-
     public void sendEnter(KeyEvent keyEvent) {
         if(keyEvent.getCode().equals(KeyCode.ENTER))
             send(new ActionEvent());
+    }
+
+    public void sendMedia(ActionEvent event) {
+        clientUDP.send();
+    }
+
+    public void logout(ActionEvent actionEvent) {
+        clientTCP.logout();
+        clientUDP.logout();
+        chatServerUDP.shutDown();
+
+        Stage stage = (Stage) logoutBtn.getScene().getWindow();
+        stage.close();
     }
 }

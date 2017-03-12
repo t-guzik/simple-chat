@@ -1,7 +1,6 @@
 package tcp;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -17,23 +16,17 @@ import java.util.List;
  * Proszę zwrócić uwagę na poprawną obsługę wątków
  */
 public class ChatServerTCP {
-    public static final short PORT = 9999;
+    private static final int PORT = 9999;
 
-    protected ServerSocket serverSocket;
-    protected List<ClientHandler> clients;
+    private ServerSocket serverSocket;
+    private List<ClientHandler> clients;
 
-    public static void main(String[] argv) throws IOException {
-        log("Chat server running...");
-        ChatServerTCP chatServerTCP = new ChatServerTCP();
-        chatServerTCP.runServer();
-    }
-
-    ChatServerTCP() throws IOException {
+    public ChatServerTCP() throws IOException {
         clients = new LinkedList<>();
-        serverSocket = new ServerSocket(PORT, 5, InetAddress.getLocalHost());
+        serverSocket = new ServerSocket(PORT);
     }
 
-    private void runServer() {
+    public void runServer() {
         while(true){
             try {
                 Socket newClient = serverSocket.accept();
@@ -56,18 +49,18 @@ public class ChatServerTCP {
         }
     }
 
-    protected static void log(String s) {
+    private static void log(String s) {
         System.out.println(s);
     }
 
     private class ClientHandler extends Thread {
-        protected Socket clientSocket;
-        protected BufferedReader inputStream;
-        protected PrintWriter outputStream;
-        protected String clientIP;
-        protected String login;
+        private Socket clientSocket;
+        private BufferedReader inputStream;
+        private PrintWriter outputStream;
+        private String clientIP;
+        private String login;
 
-        public ClientHandler(Socket socket, String ip) throws IOException{
+        private ClientHandler(Socket socket, String ip) throws IOException{
             this.clientSocket = socket;
             this.clientIP = ip;
             this.inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -112,7 +105,7 @@ public class ChatServerTCP {
             }
         }
 
-        protected void close() {
+        private void close() {
             if (clientSocket == null) {
                 log("Socket has not been opened.");
                 return;
@@ -126,7 +119,7 @@ public class ChatServerTCP {
             }
         }
 
-        public void broadcast(String senderLogin, String msg, String option) {
+        private void broadcast(String senderLogin, String msg, String option) {
             clients.forEach(c -> {
                 if (!c.login.equals(senderLogin)){
                     if(option.equals("M"))
@@ -139,7 +132,7 @@ public class ChatServerTCP {
             });
         }
 
-        public void send(String senderLogin, String msg) {
+        private void send(String senderLogin, String msg) {
             outputStream.println(senderLogin + msg);
         }
     }
