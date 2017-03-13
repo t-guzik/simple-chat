@@ -1,5 +1,6 @@
-package tcp;
+package app;
 
+import app.AsciiArt;
 import javafx.scene.control.*;
 import java.io.*;
 import java.net.*;
@@ -13,22 +14,27 @@ import java.net.*;
  * Serwer jest wielowątkowy – każde połączenie od klienta powinno mieć swój wątek
  * Proszę zwrócić uwagę na poprawną obsługę wątków
  */
-public class ClientTCP{
+public class Client {
     /** Socket data */
     private final String serverHost = "localhost";
     private final int PORTNUM = 9999;
+    private final int PACKET_SIZE = 10000;
+
     private Socket socket;
     private BufferedReader inputStream;
     private PrintWriter outputStream;
 
-    private boolean isLoggedIn = false;
+    private DatagramSocket datagramSocket;
+
+    private volatile boolean stopped = false;
+    private volatile boolean isLoggedIn = false;
 
     /** GUI */
     private String login;
     private TextArea chatArea;
     private TextField loggedUsers;
 
-    public ClientTCP(TextArea chatArea, TextField loggedUsers, String login){
+    public Client(TextArea chatArea, TextField loggedUsers, String login){
         this.chatArea = chatArea;
         this.login = login;
         this.loggedUsers = loggedUsers;
@@ -38,12 +44,14 @@ public class ClientTCP{
         if (isLoggedIn)
             return;
         try {
+            /** TCP */
             socket = new Socket(serverHost, PORTNUM);
             inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             outputStream = new PrintWriter(socket.getOutputStream(), true);
             outputStream.println("L" + login);
+
             isLoggedIn = true;
-        } catch(IOException e) {
+        } catch (IOException e) {
             log("Can't get socket to " + serverHost + "/" + PORTNUM + ": " + e);
             return;
         }
@@ -53,10 +61,10 @@ public class ClientTCP{
                 String msg;
                 char option; // M = msg, S = clients list size
                 try {
-                    while (isLoggedIn && ((msg = inputStream.readLine()) != null)){
+                    while (isLoggedIn && ((msg = inputStream.readLine()) != null)) {
                         option = msg.charAt(0);
                         msg = msg.substring(1);
-                        switch(option){
+                        switch (option) {
                             case 'M':
                                 chatArea.appendText(msg + "\n");
                                 break;
@@ -66,12 +74,35 @@ public class ClientTCP{
                                 break;
                         }
                     }
-                } catch(IOException e) {
+                } catch (IOException e) {
                     log("IOException: " + e);
                     return;
                 }
             }
         }).start();
+
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    datagramSocket = new DatagramSocket(socket.getLocalPort());
+                    DatagramPacket response = new DatagramPacket(new byte[PACKET_SIZE], PACKET_SIZE);
+                    while (!stopped) {
+                        datagramSocket.receive(response);
+                        String result = new String(response.getData(), 0, response.getLength());
+                        chatArea.appendText(result);
+                    }
+                } catch (IOException e) {
+                    log("IOException " + e);
+                }
+            }
+        }).start();
+    }
+
+    public void sendUDP() throws IOException {
+        byte[] data = AsciiArt.getArt().getBytes();
+        DatagramPacket request = new DatagramPacket(data,
+                data.length, InetAddress.getByName(serverHost), PORTNUM);
+        datagramSocket.send(request);
     }
 
     public void logout() {
@@ -79,9 +110,11 @@ public class ClientTCP{
             return;
 
         isLoggedIn = false;
+        stopped = true;
         try {
             if (socket != null) {
                 outputStream.println("Q" + login);
+                datagramSocket.close();
                 socket.close();
             }
         } catch (IOException e) {

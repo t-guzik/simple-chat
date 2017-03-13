@@ -6,9 +6,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.stage.Stage;
-import tcp.ClientTCP;
-import udp.ChatServerUDP;
-import udp.ClientUDP;
 
 import java.io.IOException;
 
@@ -36,10 +33,7 @@ public class Controller {
     @FXML
     private TextField loginTF;
 
-    private ClientTCP clientTCP;
-    private ClientUDP clientUDP;
-    private ChatServerUDP chatServerUDP;
-
+    private Client client;
     private String login;
 
     public void saveLogin(ActionEvent actionEvent) {
@@ -69,16 +63,13 @@ public class Controller {
         usersTF.setVisible(true);
         usersTF.setAlignment(Pos.CENTER);
 
-        clientTCP = new ClientTCP(chatTA, usersTF, login);
-        clientTCP.login();
-
-        chatServerUDP = new ChatServerUDP();
-        clientUDP = new ClientUDP();
+        client = new Client(chatTA, usersTF, login);
+        client.login();
     }
 
     public void send(ActionEvent actionEvent) {
         if(!msgTF.getText().equals("")){
-            clientTCP.send(msgTF.getText());
+            client.send(msgTF.getText());
             chatTA.appendText(login + ": " + msgTF.getText() + "\n");
             msgTF.setText("");
         }
@@ -89,14 +80,12 @@ public class Controller {
             send(new ActionEvent());
     }
 
-    public void sendMedia(ActionEvent event) {
-        clientUDP.send();
+    public void sendMedia(ActionEvent event) throws IOException {
+        client.sendUDP();
     }
 
     public void logout(ActionEvent actionEvent) {
-        clientTCP.logout();
-        clientUDP.logout();
-        chatServerUDP.shutDown();
+        client.logout();
 
         Stage stage = (Stage) logoutBtn.getScene().getWindow();
         stage.close();

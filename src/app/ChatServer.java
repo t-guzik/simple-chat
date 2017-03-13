@@ -1,37 +1,46 @@
-package tcp;
+package app;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.LinkedList;
-import java.util.List;
+import java.net.*;
+import java.util.*;
 
 /**
  * Created by Tomasz Guzik on 2017-03-10.
- *
- * ZAD 1
- * Klienci łączą się serwerem przez protokół TCP
- * Serwer przyjmuje wiadomości od każdego klienta i rozsyła je do pozostałych (wraz z id/nickiem klienta)
- * Serwer jest wielowątkowy – każde połączenie od klienta powinno mieć swój wątek
- * Proszę zwrócić uwagę na poprawną obsługę wątków
+ * Server TCP and UDP
  */
-public class ChatServerTCP {
+public class ChatServer {
     private static final int PORT = 9999;
+    private final int PACKET_SIZE = 10000;
+    private volatile boolean isShutDown = false;
 
     private ServerSocket serverSocket;
     private List<ClientHandler> clients;
 
-    public ChatServerTCP() throws IOException {
+    public ChatServer() throws IOException {
         clients = new LinkedList<>();
         serverSocket = new ServerSocket(PORT);
     }
 
+    public static void main(String []argv) throws IOException {
+        ChatServer chatServer = new ChatServer();
+        log("Server running...");
+        chatServer.runServer();
+    }
+
     public void runServer() {
+        /** Run UDP channel */
+        new Thread(new Runnable() {
+            public void run() {
+                runUDP();
+            }
+        }).start();
+
+        log("TCP ready!");
         while(true){
             try {
                 Socket newClient = serverSocket.accept();
-                String hostName = newClient.getInetAddress().getHostName();
-                log("New user from " + hostName);
+                String hostName = newClient.getInetAddress().getHostAddress();
+                log("New user from " + hostName + ":" + newClient.getPort());
 
                 ClientHandler clientHandler = new ClientHandler(newClient, hostName);
 
@@ -40,13 +49,44 @@ public class ChatServerTCP {
                 }
 
                 clientHandler.start();
-                clientHandler.send("", "Welcome to C.H.A.T. !");
-
-
+                clientHandler.send("M", "Welcome to C.H.A.T. !");
             } catch (IOException e){
                 log("IO Exception on server: " + e);
             }
         }
+    }
+
+    private void runUDP() {
+        log("UDP ready!");
+        byte buffer[] = new byte[PACKET_SIZE];
+        try(DatagramSocket serverSocketUDP = new DatagramSocket(PORT)) {
+            DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+            while (!isShutDown) {
+                serverSocketUDP.receive(request);
+                log("UDP request from " + request.getAddress() + ":" + request.getPort());
+                broadcastUDP(serverSocketUDP, request);
+            }
+        } catch (IOException e){
+            log("IOException " + e);
+        }
+    }
+
+    private void broadcastUDP(DatagramSocket serverSocketUDP, DatagramPacket request) {
+        clients.forEach(c -> {
+            /** Should be:
+             *  if( c.clientSocket.getInetAdress ... )
+             *  */
+            if (c.clientSocket.getPort() != request.getPort()) {
+                try {
+                    DatagramPacket response = new DatagramPacket(request.getData(),
+                        request.getLength(), c.clientSocket.getInetAddress(), c.clientSocket.getPort());
+
+                    serverSocketUDP.send(response);
+                } catch (IOException e) {
+                    log("IOException " + e);
+                }
+            }
+        });
     }
 
     private static void log(String s) {
@@ -111,7 +151,7 @@ public class ChatServerTCP {
                 return;
             }
             try {
-                log("User from " + clientSocket.getInetAddress().getHostName() + " has been disconnected.");
+                log("User from " + clientSocket.getInetAddress().getHostName() + ":" + clientSocket.getPort() + " has been disconnected.");
                 clientSocket.close();
                 clientSocket = null;
             } catch (IOException e) {
