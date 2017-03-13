@@ -1,23 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="+ UDP finished">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/Chat/tcp/ChatServerTCP$ClientHandler.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/Chat/tcp/ChatServerTCP.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/Chat/tcp/ClientTCP$1.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/out/production/Chat/tcp/ClientTCP.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/app/Server.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/udp/ChatServerUDP.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/udp/ClientUDP.java" afterPath="" />
+    <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Chat/app/Controller.class" afterPath="$PROJECT_DIR$/out/production/Chat/app/Controller.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/Chat/app/Main.class" afterPath="$PROJECT_DIR$/out/production/Chat/app/Main.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app/Controller.java" afterPath="$PROJECT_DIR$/src/app/Controller.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app/Main.java" afterPath="$PROJECT_DIR$/src/app/Main.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/asciiart/AsciiArt.java" afterPath="$PROJECT_DIR$/src/app/AsciiArt.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/tcp/ChatServerTCP.java" afterPath="$PROJECT_DIR$/src/app/ChatServer.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/tcp/ClientTCP.java" afterPath="$PROJECT_DIR$/src/app/Client.java" />
     </list>
     <ignored path="JavaFxApplication.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -80,8 +66,8 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/app/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+            <state relative-caret-position="323">
+              <caret line="20" column="15" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -92,8 +78,8 @@
       <file leaf-file-name="Client.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/app/Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="329">
-              <caret line="101" column="39" selection-start-line="101" selection-start-column="22" selection-end-line="101" selection-end-column="39" />
+            <state relative-caret-position="-123">
+              <caret line="72" column="43" selection-start-line="72" selection-start-column="32" selection-end-line="72" selection-end-column="43" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -104,11 +90,15 @@
       <file leaf-file-name="ChatServer.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/app/ChatServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="542">
-              <caret line="95" column="43" selection-start-line="95" selection-start-column="43" selection-end-line="95" selection-end-column="43" />
+            <state relative-caret-position="731">
+              <caret line="60" column="19" selection-start-line="60" selection-start-column="19" selection-end-line="60" selection-end-column="19" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="method#main#0;class#ChatServer#0" expanded="false" />
+                <element signature="method#runTCP#0;class#ChatServer#0" expanded="false" />
+                <element signature="method#runUDP#0;class#ChatServer#0" expanded="false" />
+                <element signature="method#broadcastUDP#0;class#ChatServer#0" expanded="false" />
+                <element signature="method#ClientHandler#0;class#ClientHandler#0;class#ChatServer#0" expanded="false" />
+                <element signature="method#run#0;class#ClientHandler#0;class#ChatServer#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -177,12 +167,12 @@
         <option value="$PROJECT_DIR$/src/app/Client2.java" />
         <option value="$PROJECT_DIR$/src/app/Img2Ascii.java" />
         <option value="$PROJECT_DIR$/img/Img2Ascii.java" />
-        <option value="$PROJECT_DIR$/src/app/ChatServer.java" />
         <option value="$PROJECT_DIR$/src/app/Main.java" />
         <option value="$PROJECT_DIR$/src/app/Client.java" />
         <option value="$PROJECT_DIR$/src/app/AsciiArt.java" />
         <option value="$PROJECT_DIR$/src/app/Controller.java" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/src/app/ChatServer.java" />
       </list>
     </option>
   </component>
@@ -294,7 +284,7 @@
       <recent name="E:\Projects\IntelijProjects\Chat\img" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ChatServer">
+  <component name="RunManager" selected="Application.Main">
     <configuration default="false" name="ChatServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
@@ -936,7 +926,7 @@
       <workItem from="1489328778176" duration="29515000" />
       <workItem from="1489359912456" duration="5359000" />
       <workItem from="1489394032036" duration="3573000" />
-      <workItem from="1489397626602" duration="3974000" />
+      <workItem from="1489397626602" duration="5881000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1489336221107</created>
@@ -973,11 +963,25 @@
       <option name="project" value="LOCAL" />
       <updated>1489352140752</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="+ UDP finished">
+      <created>1489401617450</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1489401617450</updated>
+    </task>
+    <task id="LOCAL-00007" summary="+ UDP finished">
+      <created>1489403443411</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1489403443411</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="60638000" />
+    <option name="totallyTimeSpent" value="62545000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -996,7 +1000,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1098081" sideWeight="0.6703755" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1098081" sideWeight="0.6703755" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Graph Database Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1031,7 +1035,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial Commit" />
     <MESSAGE value="+ UDP" />
-    <option name="LAST_COMMIT_MESSAGE" value="+ UDP" />
+    <MESSAGE value="+ UDP finished" />
+    <option name="LAST_COMMIT_MESSAGE" value="+ UDP finished" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1070,7 +1075,11 @@
           <caret line="23" column="30" selection-start-line="23" selection-start-column="17" selection-end-line="23" selection-end-column="30" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="method#main#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#runTCP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#runUDP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#broadcastUDP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#ClientHandler#0;class#ClientHandler#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#run#0;class#ClientHandler#0;class#ChatServer#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1112,7 +1121,11 @@
           <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="method#main#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#runTCP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#runUDP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#broadcastUDP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#ClientHandler#0;class#ClientHandler#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#run#0;class#ClientHandler#0;class#ChatServer#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1164,7 +1177,11 @@
           <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="method#main#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#runTCP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#runUDP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#broadcastUDP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#ClientHandler#0;class#ClientHandler#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#run#0;class#ClientHandler#0;class#ChatServer#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1416,26 +1433,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/app/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/app/Client.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
-          <caret line="101" column="39" selection-start-line="101" selection-start-column="22" selection-end-line="101" selection-end-column="39" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/app/Controller.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="380">
@@ -1454,13 +1451,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/app/ChatServer.java">
+    <entry file="file://$PROJECT_DIR$/src/app/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="542">
-          <caret line="95" column="43" selection-start-line="95" selection-start-column="43" selection-end-line="95" selection-end-column="43" />
+        <state relative-caret-position="323">
+          <caret line="20" column="15" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="method#main#0;class#ChatServer#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-123">
+          <caret line="72" column="43" selection-start-line="72" selection-start-column="32" selection-end-line="72" selection-end-column="43" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app/ChatServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="731">
+          <caret line="60" column="19" selection-start-line="60" selection-start-column="19" selection-end-line="60" selection-end-column="19" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#runTCP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#runUDP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#broadcastUDP#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#ClientHandler#0;class#ClientHandler#0;class#ChatServer#0" expanded="false" />
+            <element signature="method#run#0;class#ClientHandler#0;class#ChatServer#0" expanded="false" />
           </folding>
         </state>
       </provider>
