@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Controller {
+    /** GUI elements */
     @FXML
     private Button sendBtn;
     @FXML
@@ -33,9 +34,14 @@ public class Controller {
     @FXML
     private TextField loginTF;
 
+    /** Client data */
     private Client client;
     private String login;
 
+    /**
+     * Saving chosen login after saveBtn pressing.
+     * @param actionEvent
+     */
     public void saveLogin(ActionEvent actionEvent) {
         loginTF.setText(loginTF.getText().replaceAll("\\s+", ""));
         if(loginTF.getText().equals("")){
@@ -53,6 +59,10 @@ public class Controller {
         }
     }
 
+    /**
+     * Logging to chat after loginBtn pressing.
+     * @param actionEvent
+     */
     public void login(ActionEvent actionEvent) {
         loginBtn.setDisable(true);
         msgTF.setDisable(false);
@@ -67,6 +77,10 @@ public class Controller {
         client.login();
     }
 
+    /**
+     * Sending text message after sendBtn pressing.
+     * @param actionEvent
+     */
     public void send(ActionEvent actionEvent) {
         if(!msgTF.getText().equals("")){
             client.send(msgTF.getText());
@@ -75,18 +89,31 @@ public class Controller {
         }
     }
 
+
+    /**
+     * Sending text message using EnterKey.
+     * @param keyEvent
+     */
     public void sendEnter(KeyEvent keyEvent) {
         if(keyEvent.getCode().equals(KeyCode.ENTER))
             send(new ActionEvent());
     }
 
+    /**
+     * Sending media message (AsciiArt) after mediaBtn pressing.
+     * @param event
+     * @throws IOException
+     */
     public void sendMedia(ActionEvent event) throws IOException {
         client.sendUDP();
     }
 
+    /**
+     * Logging out after logoutBtn pressing.
+     * @param actionEvent
+     */
     public void logout(ActionEvent actionEvent) {
         client.logout();
-
         Stage stage = (Stage) logoutBtn.getScene().getWindow();
         stage.close();
     }

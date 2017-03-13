@@ -6,7 +6,7 @@ import java.util.*;
 
 /**
  * Created by Tomasz Guzik on 2017-03-10.
- * TCP and UDP channels handler
+ * TCP and UDP channels handler.
  */
 public class ChatServer {
     private static final int PORT = 9999;

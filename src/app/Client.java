@@ -7,12 +7,7 @@ import java.net.*;
 
 /**
  * Created by Tomasz Guzik on 2017-03-10.
- *
- * ZAD 1
- * Klienci łączą się serwerem przez protokół TCP
- * Serwer przyjmuje wiadomości od każdego klienta i rozsyła je do pozostałych (wraz z id/nickiem klienta)
- * Serwer jest wielowątkowy – każde połączenie od klienta powinno mieć swój wątek
- * Proszę zwrócić uwagę na poprawną obsługę wątków
+ * New chat user. It has UDP and TCP channels to send messages.
  */
 public class Client {
     /** Socket data */
@@ -52,10 +47,11 @@ public class Client {
 
             isLoggedIn = true;
         } catch (IOException e) {
-            log("Can't get socket to " + serverHost + "/" + PORTNUM + ": " + e);
+            log("Can't get socket to " + serverHost + ":" + PORTNUM + " " + e);
             return;
         }
 
+        /** Thred for TCP channel */
         new Thread(new Runnable() {
             public void run() {
                 String msg;
@@ -81,6 +77,7 @@ public class Client {
             }
         }).start();
 
+        /** Thred for UDP channel */
         new Thread(new Runnable() {
             public void run() {
                 try {
@@ -98,6 +95,10 @@ public class Client {
         }).start();
     }
 
+    /**
+     * Sending UDP media message (AsciArt) to server.
+     * @throws IOException
+     */
     public void sendUDP() throws IOException {
         byte[] data = AsciiArt.getArt().getBytes();
         DatagramPacket request = new DatagramPacket(data,
@@ -105,6 +106,10 @@ public class Client {
         datagramSocket.send(request);
     }
 
+    /**
+     * Logging out and closing chat session.
+     * Clossing TCP and UDP sockets.
+     */
     public void logout() {
         if (!isLoggedIn)
             return;
@@ -122,6 +127,10 @@ public class Client {
         }
     }
 
+    /**
+     * Sending TCP text message to server.
+     * @param msg
+     */
     public void send(String msg) {
         if(isLoggedIn){
             outputStream.println("M" + msg);
