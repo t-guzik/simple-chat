@@ -6,7 +6,7 @@ import java.util.*;
 
 /**
  * Created by Tomasz Guzik on 2017-03-10.
- * Server TCP and UDP
+ * TCP and UDP channels handler
  */
 public class ChatServer {
     private static final int PORT = 9999;
@@ -29,12 +29,16 @@ public class ChatServer {
 
     public void runServer() {
         /** Run UDP channel */
-        new Thread(new Runnable() {
-            public void run() {
-                runUDP();
-            }
-        }).start();
+        runUDP();
 
+        /** Run TCP channel */
+        runTCP();
+    }
+
+    /**
+     * TCP handler.
+     */
+    private void runTCP() {
         log("TCP ready!");
         while(true){
             try {
@@ -43,10 +47,7 @@ public class ChatServer {
                 log("New user from " + hostName + ":" + newClient.getPort());
 
                 ClientHandler clientHandler = new ClientHandler(newClient, hostName);
-
-                synchronized (clients) {
-                    clients.add(clientHandler);
-                }
+                synchronized (clients) { clients.add(clientHandler); }
 
                 clientHandler.start();
                 clientHandler.send("M", "Welcome to C.H.A.T. !");
@@ -56,21 +57,33 @@ public class ChatServer {
         }
     }
 
+    /**
+     * UDP handler.
+     */
     private void runUDP() {
-        log("UDP ready!");
-        byte buffer[] = new byte[PACKET_SIZE];
-        try(DatagramSocket serverSocketUDP = new DatagramSocket(PORT)) {
-            DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-            while (!isShutDown) {
-                serverSocketUDP.receive(request);
-                log("UDP request from " + request.getAddress() + ":" + request.getPort());
-                broadcastUDP(serverSocketUDP, request);
+        new Thread(new Runnable() {
+            public void run() {
+                log("UDP ready!");
+                byte buffer[] = new byte[PACKET_SIZE];
+                try (DatagramSocket serverSocketUDP = new DatagramSocket(PORT)) {
+                    DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+                    while (!isShutDown) {
+                        serverSocketUDP.receive(request);
+                        log("UDP request from " + request.getAddress() + ":" + request.getPort());
+                        broadcastUDP(serverSocketUDP, request);
+                    }
+                } catch (IOException e) {
+                    log("IOException " + e);
+                }
             }
-        } catch (IOException e){
-            log("IOException " + e);
-        }
+        }).start();
     }
 
+    /**
+     * Sending UDP message to chat clients.
+     * @param serverSocketUDP - server DatagramSocket
+     * @param request - message from sender
+     */
     private void broadcastUDP(DatagramSocket serverSocketUDP, DatagramPacket request) {
         clients.forEach(c -> {
             /** Should be:
@@ -93,6 +106,11 @@ public class ChatServer {
         System.out.println(s);
     }
 
+    /**
+     * TCP channel handler for single chat client. Running in a new thread.
+     * ClientHandler objects are stored in "clients" LinkedList.
+     * Adding and removing ClientHandler to list are synchronized operations.
+     */
     private class ClientHandler extends Thread {
         private Socket clientSocket;
         private BufferedReader inputStream;
@@ -113,9 +131,15 @@ public class ChatServer {
             char option; // L = login, M = msg, Q = quit
             try {
                 while( (msg = inputStream.readLine()) != null){
+                    /** First char in every single message is an option.*/
                     option = msg.charAt(0);
                     msg = msg.substring(1);
 
+                    /** There is several message types:
+                     *  M - text message
+                     *  L - logging in
+                     *  Q - quit, logging out
+                     *  */
                     switch(option){
                         case 'M':
                             if (login != null)
@@ -145,6 +169,9 @@ public class ChatServer {
             }
         }
 
+        /**
+         * TCP socket closing after logout.
+         */
         private void close() {
             if (clientSocket == null) {
                 log("Socket has not been opened.");
@@ -159,6 +186,12 @@ public class ChatServer {
             }
         }
 
+        /**
+         * Sending messages to all chat clients.
+         * @param senderLogin
+         * @param msg
+         * @param option
+         */
         private void broadcast(String senderLogin, String msg, String option) {
             clients.forEach(c -> {
                 if (!c.login.equals(senderLogin)){
@@ -172,6 +205,11 @@ public class ChatServer {
             });
         }
 
+        /**
+         * Sending message to single chat client.
+         * @param senderLogin
+         * @param msg
+         */
         private void send(String senderLogin, String msg) {
             outputStream.println(senderLogin + msg);
         }
