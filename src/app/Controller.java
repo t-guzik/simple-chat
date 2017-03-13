@@ -26,6 +26,8 @@ public class Controller {
     @FXML
     private Label errorsLbl;
     @FXML
+    private RadioButton multicastRBtn;
+    @FXML
     private TextArea chatTA;
     @FXML
     private TextField msgTF;
@@ -37,6 +39,7 @@ public class Controller {
     /** Client data */
     private Client client;
     private String login;
+    private boolean multicastActive = false;
 
     /**
      * Saving chosen login after saveBtn pressing.
@@ -63,7 +66,7 @@ public class Controller {
      * Logging to chat after loginBtn pressing.
      * @param actionEvent
      */
-    public void login(ActionEvent actionEvent) {
+    public void login(ActionEvent actionEvent) throws IOException {
         loginBtn.setDisable(true);
         msgTF.setDisable(false);
         msgTF.requestFocus();
@@ -72,8 +75,16 @@ public class Controller {
         logoutBtn.setDisable(false);
         usersTF.setVisible(true);
         usersTF.setAlignment(Pos.CENTER);
+        multicastRBtn.setText("Multicast group");
 
-        client = new Client(chatTA, usersTF, login);
+        if(multicastRBtn.isSelected()) {
+            multicastRBtn.setVisible(true);
+            multicastActive = true;
+        }
+        else
+            multicastRBtn.setVisible(false);
+
+        client = new Client(chatTA, usersTF, login, multicastActive);
         client.login();
     }
 
@@ -88,7 +99,6 @@ public class Controller {
             msgTF.setText("");
         }
     }
-
 
     /**
      * Sending text message using EnterKey.
@@ -105,7 +115,20 @@ public class Controller {
      * @throws IOException
      */
     public void sendMedia(ActionEvent event) throws IOException {
-        client.sendUDP();
+        if(multicastActive)
+            client.sendMulticastUDP();
+        else
+            client.sendUDP();
+    }
+
+    public void setGroupMembership(MouseEvent mouseEvent) throws InterruptedException, IOException {
+        if(multicastActive) {
+            if (multicastRBtn.isSelected()) {
+                client.setGroupMembershipSelected(true);
+            } else {
+                client.setGroupMembershipSelected(false);
+            }
+        }
     }
 
     /**

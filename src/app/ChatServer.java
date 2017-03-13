@@ -9,9 +9,14 @@ import java.util.*;
  * TCP and UDP channels handler.
  */
 public class ChatServer {
+    private static boolean DEBUG = true;
+
     private static final int PORT = 9999;
     private final int PACKET_SIZE = 10000;
     private volatile boolean isShutDown = false;
+    private boolean multicast = false;
+    private final String multicastAddress = "228.5.6.7";
+    private InetAddress multicastGroup = InetAddress.getByName(multicastAddress);
 
     private ServerSocket serverSocket;
     private List<ClientHandler> clients;
@@ -21,15 +26,29 @@ public class ChatServer {
         serverSocket = new ServerSocket(PORT);
     }
 
+    public ChatServer(boolean multicast) throws IOException {
+        this.multicast = multicast;
+        clients = new LinkedList<>();
+        serverSocket = new ServerSocket(PORT);
+    }
+
     public static void main(String []argv) throws IOException {
-        ChatServer chatServer = new ChatServer();
-        log("Server running...");
+        //ChatServer chatServer = new ChatServer();
+
+        /** Multicast */
+        ChatServer chatServer = new ChatServer(true);
+
+        if (DEBUG) log("Server running...");
         chatServer.runServer();
     }
 
     public void runServer() {
-        /** Run UDP channel */
-        runUDP();
+        if(multicast)
+            /** Run UDP multicast channel */
+            runMulticastUPD();
+        else
+            /** Run UDP channel */
+            runUDP();
 
         /** Run TCP channel */
         runTCP();
@@ -39,12 +58,12 @@ public class ChatServer {
      * TCP handler.
      */
     private void runTCP() {
-        log("TCP ready!");
+        if (DEBUG) log("TCP ready!");
         while(true){
             try {
                 Socket newClient = serverSocket.accept();
                 String hostName = newClient.getInetAddress().getHostAddress();
-                log("New user from " + hostName + ":" + newClient.getPort());
+                if (DEBUG) log("New user from " + hostName + ":" + newClient.getPort());
 
                 ClientHandler clientHandler = new ClientHandler(newClient, hostName);
                 synchronized (clients) { clients.add(clientHandler); }
@@ -63,16 +82,38 @@ public class ChatServer {
     private void runUDP() {
         new Thread(new Runnable() {
             public void run() {
-                log("UDP ready!");
+                if (DEBUG) log("UDP ready!");
                 byte buffer[] = new byte[PACKET_SIZE];
                 try (DatagramSocket serverSocketUDP = new DatagramSocket(PORT)) {
                     DatagramPacket request = new DatagramPacket(buffer, buffer.length);
                     while (!isShutDown) {
                         serverSocketUDP.receive(request);
-                        log("UDP request from " + request.getAddress() + ":" + request.getPort());
+                        if (DEBUG) log("UDP request from " + request.getAddress() + ":" + request.getPort());
                         broadcastUDP(serverSocketUDP, request);
                     }
                 } catch (IOException e) {
+                    log("IOException " + e);
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * UDP multicast handler.
+     */
+    private void runMulticastUPD() {
+        new Thread(new Runnable() {
+            public void run() {
+                if (DEBUG) log("UDP multicast ready!");
+                try (DatagramSocket serverMulticastSocketUDP = new DatagramSocket(PORT)) {
+                    byte buffer[] = new byte[PACKET_SIZE];
+                    DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+                    while (!isShutDown) {
+                        serverMulticastSocketUDP.receive(request);
+                        if (DEBUG) log("UDP multicast request from " + request.getAddress() + ":" + request.getPort());
+                        multicastUDP(serverMulticastSocketUDP, request);
+                    }
+                } catch (IOException e){
                     log("IOException " + e);
                 }
             }
@@ -88,6 +129,7 @@ public class ChatServer {
         clients.forEach(c -> {
             /** Should be:
              *  if( c.clientSocket.getInetAdress ... )
+             *  Checking ports because of local use. Address is the same for all clients.
              *  */
             if (c.clientSocket.getPort() != request.getPort()) {
                 try {
@@ -100,6 +142,22 @@ public class ChatServer {
                 }
             }
         });
+    }
+
+    /**
+     * Sending UDP multicast message to chat clients who belong to group.
+     * @param serverMulticastSocketUDP - server DatagramSocket
+     * @param request - message from sender
+     */
+    private void multicastUDP(DatagramSocket serverMulticastSocketUDP, DatagramPacket request){
+        try {
+            DatagramPacket response = new DatagramPacket(request.getData(),
+                    request.getLength(), multicastGroup, PORT-1);
+
+            serverMulticastSocketUDP.send(response);
+        } catch (IOException e) {
+            log("IOException " + e);
+        }
     }
 
     private static void log(String s) {
@@ -174,11 +232,11 @@ public class ChatServer {
          */
         private void close() {
             if (clientSocket == null) {
-                log("Socket has not been opened.");
+                if (DEBUG) log("Socket has not been opened.");
                 return;
             }
             try {
-                log("User from " + clientSocket.getInetAddress().getHostName() + ":" + clientSocket.getPort() + " has been disconnected.");
+                if (DEBUG) log("User from " + clientSocket.getInetAddress().getHostName() + ":" + clientSocket.getPort() + " has been disconnected.");
                 clientSocket.close();
                 clientSocket = null;
             } catch (IOException e) {
