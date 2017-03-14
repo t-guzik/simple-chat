@@ -17,7 +17,7 @@ public class Client {
     private InetAddress multicastGroup = InetAddress.getByName(multicastAddress);
     private final int PORT = 9999;
     private final int PACKET_SIZE = 10000;
-    private final int TTL = 1;
+    private final int TTL = 10;
 
     private Socket socket;
     private BufferedReader inputStream;
@@ -64,7 +64,6 @@ public class Client {
             isLoggedIn = true;
         } catch (IOException e) {
             log("Can't get socket to " + serverHost + ":" + PORT + " " + e);
-            return;
         }
 
         /** Thread for TCP channel */
@@ -110,7 +109,7 @@ public class Client {
                         DatagramPacket response = new DatagramPacket(new byte[PACKET_SIZE], PACKET_SIZE);
                         while (!stopped) {
                             datagramSocket.receive(response);
-                            if(DEBUG) log("UDP datagram received form " + response.getAddress() + ":" + response.getPort() + ", size=" + response.getLength());
+                            if(DEBUG) log("UDP datagram received from " + response.getAddress() + ":" + response.getPort() + ", size=" + response.getLength());
                             String result = new String(response.getData(), 0, response.getLength());
                             chatArea.appendText(result);
                         }
@@ -143,7 +142,7 @@ public class Client {
                         while (!stopped) {
                             if (groupMembershipSelected) {
                                 datagramMulticastSocket.receive(response);
-                                if(DEBUG) log("UDP datagram received form " + response.getAddress() + ":" + response.getPort() + ", size=" + response.getLength());
+                                if(DEBUG) log("UDP datagram received from " + response.getAddress() + ":" + response.getPort() + ", size=" + response.getLength());
                                 String result = new String(response.getData(), 0, response.getLength());
                                 chatArea.appendText(result);
                             }
@@ -172,11 +171,12 @@ public class Client {
         if(groupMembershipSelected && !datagramMulticastSocket.isClosed()) {
             DatagramPacket request = new DatagramPacket(data, data.length, InetAddress.getByName(serverHost), PORT);
             datagramMulticastSocket.send(request);
+            if(DEBUG) log("UDP multicast datagram sent to " + request.getAddress() + ":" + request.getPort() + ", size=" + request.getLength());
 
             /** OR JUST WITHOUT SERVER */
             //DatagramPacket request1 = new DatagramPacket(data, data.length, multicastGroup, PORT-1);
             //datagramMulticastSocket.send(request1);
-            if(DEBUG) log("UDP multicast datagram sent to " + request.getAddress() + ":" + request.getPort() + ", size=" + request.getLength());
+            //if(DEBUG) log("UDP multicast datagram sent to " + request1.getAddress() + ":" + request1.getPort() + ", size=" + request1.getLength());
         }
     }
 

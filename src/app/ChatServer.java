@@ -34,7 +34,7 @@ public class ChatServer {
 
     public static void main(String []argv) throws IOException {
         /** Multicast or not */
-        ChatServer chatServer = new ChatServer();
+        ChatServer chatServer = new ChatServer(true);
         chatServer.runServer();
     }
 
