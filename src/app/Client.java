@@ -132,7 +132,7 @@ public class Client {
                         datagramMulticastSocket.setTimeToLive(TTL);
                         /** Should be set in order to don't receive own messages.*/
                         //datagramMulticastSocket.setLoopbackMode(true);
-                        datagramMulticastSocket.joinGroup(InetAddress.getByName(multicastAddress));
+                        datagramMulticastSocket.joinGroup(multicastGroup);
                         if(DEBUG) {
                             log("UDP datagram socket [localport=" + datagramMulticastSocket.getLocalPort() +
                                     ", TTL=" + datagramMulticastSocket.getTimeToLive() +"]");
