@@ -9,7 +9,7 @@ import java.util.*;
  * TCP and UDP channels handler.
  */
 public class ChatServer {
-    private static boolean DEBUG = true;
+    public static boolean DEBUG = true;
 
     private static final int PORT = 9999;
     private final int PACKET_SIZE = 10000;
@@ -33,22 +33,16 @@ public class ChatServer {
     }
 
     public static void main(String []argv) throws IOException {
-        //ChatServer chatServer = new ChatServer();
-
-        /** Multicast */
-        ChatServer chatServer = new ChatServer(true);
-
-        if (DEBUG) log("Server running...");
+        /** Multicast or not */
+        ChatServer chatServer = new ChatServer();
         chatServer.runServer();
     }
 
-    public void runServer() {
-        if(multicast)
-            /** Run UDP multicast channel */
-            runMulticastUPD();
-        else
-            /** Run UDP channel */
-            runUDP();
+    private void runServer() {
+        if (DEBUG) log("Server running...");
+
+        /** Run UDP channel */
+        runUDP();
 
         /** Run TCP channel */
         runTCP();
@@ -82,38 +76,22 @@ public class ChatServer {
     private void runUDP() {
         new Thread(new Runnable() {
             public void run() {
-                if (DEBUG) log("UDP ready!");
+                if (DEBUG)
+                    if(multicast) log("UDP multicast ready!");
+                    else log("UDP ready!");
+
                 byte buffer[] = new byte[PACKET_SIZE];
                 try (DatagramSocket serverSocketUDP = new DatagramSocket(PORT)) {
                     DatagramPacket request = new DatagramPacket(buffer, buffer.length);
                     while (!isShutDown) {
                         serverSocketUDP.receive(request);
                         if (DEBUG) log("UDP request from " + request.getAddress() + ":" + request.getPort());
-                        broadcastUDP(serverSocketUDP, request);
+                        if(multicast)
+                            multicastUDP(serverSocketUDP, request);
+                        else
+                            broadcastUDP(serverSocketUDP, request);
                     }
                 } catch (IOException e) {
-                    log("IOException " + e);
-                }
-            }
-        }).start();
-    }
-
-    /**
-     * UDP multicast handler.
-     */
-    private void runMulticastUPD() {
-        new Thread(new Runnable() {
-            public void run() {
-                if (DEBUG) log("UDP multicast ready!");
-                try (DatagramSocket serverMulticastSocketUDP = new DatagramSocket(PORT)) {
-                    byte buffer[] = new byte[PACKET_SIZE];
-                    DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-                    while (!isShutDown) {
-                        serverMulticastSocketUDP.receive(request);
-                        if (DEBUG) log("UDP multicast request from " + request.getAddress() + ":" + request.getPort());
-                        multicastUDP(serverMulticastSocketUDP, request);
-                    }
-                } catch (IOException e){
                     log("IOException " + e);
                 }
             }
@@ -129,7 +107,7 @@ public class ChatServer {
         clients.forEach(c -> {
             /** Should be:
              *  if( c.clientSocket.getInetAdress ... )
-             *  Checking ports because of local use. Address is the same for all clients.
+             *  Checking ports because of local use. Address is the same.
              *  */
             if (c.clientSocket.getPort() != request.getPort()) {
                 try {
@@ -137,6 +115,7 @@ public class ChatServer {
                         request.getLength(), c.clientSocket.getInetAddress(), c.clientSocket.getPort());
 
                     serverSocketUDP.send(response);
+                    if (DEBUG) log("UDP response to " + c.clientSocket.getInetAddress() + ":" + c.clientSocket.getPort());
                 } catch (IOException e) {
                     log("IOException " + e);
                 }
@@ -151,10 +130,9 @@ public class ChatServer {
      */
     private void multicastUDP(DatagramSocket serverMulticastSocketUDP, DatagramPacket request){
         try {
-            DatagramPacket response = new DatagramPacket(request.getData(),
-                    request.getLength(), multicastGroup, PORT-1);
-
+            DatagramPacket response = new DatagramPacket(request.getData(), request.getLength(), multicastGroup, PORT-1);
             serverMulticastSocketUDP.send(response);
+            if (DEBUG) log("UDP response to " + multicastGroup + ":" + (PORT-1));
         } catch (IOException e) {
             log("IOException " + e);
         }
@@ -192,6 +170,7 @@ public class ChatServer {
                     /** First char in every single message is an option.*/
                     option = msg.charAt(0);
                     msg = msg.substring(1);
+                    if (DEBUG) log("TCP message received, size=" + msg.length());
 
                     /** There is several message types:
                      *  M - text message
@@ -232,11 +211,11 @@ public class ChatServer {
          */
         private void close() {
             if (clientSocket == null) {
-                if (DEBUG) log("Socket has not been opened.");
+                log("Socket has not been opened.");
                 return;
             }
             try {
-                if (DEBUG) log("User from " + clientSocket.getInetAddress().getHostName() + ":" + clientSocket.getPort() + " has been disconnected.");
+                log("User from " + clientSocket.getInetAddress().getHostName() + ":" + clientSocket.getPort() + " has been disconnected.");
                 clientSocket.close();
                 clientSocket = null;
             } catch (IOException e) {
@@ -270,6 +249,7 @@ public class ChatServer {
          */
         private void send(String senderLogin, String msg) {
             outputStream.println(senderLogin + msg);
+            if (DEBUG) log("TCP message sent, size=" + (msg.length() + senderLogin.length()));
         }
     }
 }
