@@ -129,29 +129,29 @@ public class Client {
                     try {
                         datagramMulticastSocket = new MulticastSocket(PORT - 1);
                         datagramMulticastSocket.setTimeToLive(TTL);
-                        /** Should be set in order to don't receive own messages.*/
-                        //datagramMulticastSocket.setLoopbackMode(true);
-                        datagramMulticastSocket.joinGroup(multicastGroup);
-                        if(DEBUG) {
-                            log("UDP datagram socket [localport=" + datagramMulticastSocket.getLocalPort() +
-                                    ", TTL=" + datagramMulticastSocket.getTimeToLive() +"]");
-                            log("Client " + login + " joined the multicast group!");
-                        }
-
-                        DatagramPacket response = new DatagramPacket(new byte[PACKET_SIZE], PACKET_SIZE);
-                        while (!stopped) {
-                            if (groupMembershipSelected) {
-                                datagramMulticastSocket.receive(response);
-                                if(DEBUG) log("UDP datagram received from " + response.getAddress() + ":" + response.getPort() + ", size=" + response.getLength());
-                                String result = new String(response.getData(), 0, response.getLength());
-                                chatArea.appendText(result);
-                            }
-                        }
-                    } catch (IOException e) {
-                        log("IOException " + e);
-                    } finally {
-                        log("UDP datagram multicast socket closed!");
+                    /** Should be set in order to don't receive own messages.*/
+                    //datagramMulticastSocket.setLoopbackMode(true);
+                    datagramMulticastSocket.joinGroup(multicastGroup);
+                    if(DEBUG) {
+                        log("UDP datagram socket [localport=" + datagramMulticastSocket.getLocalPort() +
+                                ", TTL=" + datagramMulticastSocket.getTimeToLive() +"]");
+                        log("Client " + login + " joined the multicast group!");
                     }
+
+                    DatagramPacket response = new DatagramPacket(new byte[PACKET_SIZE], PACKET_SIZE);
+                    while (!stopped) {
+                        if (groupMembershipSelected) {
+                            datagramMulticastSocket.receive(response);
+                            if(DEBUG) log("UDP datagram received from " + response.getAddress() + ":" + response.getPort() + ", size=" + response.getLength());
+                            String result = new String(response.getData(), 0, response.getLength());
+                            chatArea.appendText(result);
+                        }
+                    }
+                } catch (IOException e) {
+                    log("IOException " + e);
+                } finally {
+                    log("UDP datagram multicast socket closed!");
+                }
                 }
             }).start();
         }
